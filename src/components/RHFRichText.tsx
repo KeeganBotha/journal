@@ -3,11 +3,14 @@
 import { useId } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { EditorContent, useEditor, useEditorState, type Editor } from "@tiptap/react";
-import StarterKit from "@tiptap/starter-kit";
 import { Bold, Italic, List, ListOrdered } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils";
+import {
+  richTextContentClass,
+  richTextExtensions,
+} from "./rich-text-extensions";
 
 type Props = {
   name: string;
@@ -56,22 +59,9 @@ export function RHFRichText({
   );
 }
 
-// Toolbar exposes exactly bold, italic, bullet list, ordered list (SPEC);
-// everything else StarterKit would add is switched off so keyboard shortcuts
-// and markdown-style input rules can't create nodes the toolbar doesn't show.
-const extensions = [
-  StarterKit.configure({
-    heading: false,
-    blockquote: false,
-    code: false,
-    codeBlock: false,
-    strike: false,
-    underline: false,
-    link: false,
-    horizontalRule: false,
-  }),
-];
-
+// Toolbar exposes exactly bold, italic, bullet list, ordered list (SPEC); the
+// shared extension set switches everything else off so shortcuts and
+// markdown-style input rules can't create nodes the toolbar doesn't show.
 function RichTextEditor({
   initialContent,
   onChange,
@@ -88,7 +78,7 @@ function RichTextEditor({
   labelId?: string;
 }) {
   const editor = useEditor({
-    extensions,
+    extensions: richTextExtensions,
     content: initialContent,
     immediatelyRender: false,
     editable: !disabled,
@@ -100,9 +90,7 @@ function RichTextEditor({
         "aria-multiline": "true",
         ...(labelId && { "aria-labelledby": labelId }),
         "aria-invalid": String(invalid),
-        // Tailwind resets list styles; restore them inside the editor only.
-        class:
-          "min-h-48 px-3 py-2 text-base outline-none sm:text-sm [&_p]:my-1 [&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-1 [&_ol]:list-decimal [&_ol]:pl-6",
+        class: cn("min-h-48 px-3 py-2 outline-none", richTextContentClass),
       },
     },
   });

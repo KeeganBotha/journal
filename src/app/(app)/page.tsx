@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { verifySession } from "@/lib/server/session";
 import { formatLongDate, todayInAppTz } from "@/lib/server/dates";
 import { Spinner } from "@/components/Spinner";
+import { OnThisDaySection } from "./_components/OnThisDaySection";
 import { TodayEntrySection } from "./_components/TodayEntrySection";
 
 export default async function TodayPage() {
@@ -19,6 +20,11 @@ export default async function TodayPage() {
       {/* Data-bearing region fetches inside its own boundary (UI.md §6). */}
       <Suspense fallback={<Spinner />}>
         <TodayEntrySection />
+      </Suspense>
+      {/* No fallback: the section is absent on most days, and a spinner that
+          resolves to nothing would be a flicker (SPEC rule 7). */}
+      <Suspense fallback={null}>
+        <OnThisDaySection />
       </Suspense>
     </div>
   );
