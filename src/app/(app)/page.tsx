@@ -1,5 +1,8 @@
+import { Suspense } from "react";
 import { verifySession } from "@/lib/server/session";
 import { formatLongDate, todayInAppTz } from "@/lib/server/dates";
+import { Spinner } from "@/components/Spinner";
+import { TodayEntrySection } from "./_components/TodayEntrySection";
 
 export default async function TodayPage() {
   await verifySession(); // fail fast (UX) — the real gate is in the service
@@ -13,6 +16,10 @@ export default async function TodayPage() {
         </h1>
         <p className="text-sm text-muted-foreground">Today</p>
       </div>
+      {/* Data-bearing region fetches inside its own boundary (UI.md §6). */}
+      <Suspense fallback={<Spinner />}>
+        <TodayEntrySection />
+      </Suspense>
     </div>
   );
 }
