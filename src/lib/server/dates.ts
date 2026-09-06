@@ -1,4 +1,5 @@
 import "server-only";
+import { format } from "date-fns";
 import { config } from "./config";
 
 /** A calendar day as "YYYY-MM-DD". The only shape a date takes above the provider. */
@@ -41,4 +42,12 @@ export function oneYearBefore(iso: IsoDate): IsoDate | null {
   const [year, month, day] = iso.split("-").map(Number);
   const candidate = new Date(Date.UTC(year - 1, month - 1, day));
   return candidate.getUTCMonth() === month - 1 ? toIsoDate(candidate) : null;
+}
+
+/**
+ * Presentation only: "Saturday, 6 September 2026". Parses the IsoDate as a
+ * local-midnight Date so date-fns's `format` can't shift the day.
+ */
+export function formatLongDate(iso: IsoDate): string {
+  return format(new Date(`${iso}T00:00:00`), "EEEE, d MMMM yyyy");
 }

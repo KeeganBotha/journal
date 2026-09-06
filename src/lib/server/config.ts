@@ -3,6 +3,18 @@ import { z } from "zod";
 
 // The ONLY file allowed to touch process.env (PATTERNS.md §6).
 // Validated once at startup — a missing or malformed variable fails fast here.
+
+// The runtime is the authority on zone names. (Intl.supportedValuesOf omits
+// "UTC" and the Etc/* aliases, so it can't be used as the allowlist.)
+function isValidTimeZone(tz: string): boolean {
+  try {
+    new Intl.DateTimeFormat("en-US", { timeZone: tz });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const schema = z.object({
   NODE_ENV: z
     .enum(["development", "test", "production"])
@@ -22,11 +34,9 @@ const schema = z.object({
   // Vercel sends this as `Authorization: Bearer <CRON_SECRET>` to cron routes.
   CRON_SECRET: z.string().min(16),
   // Every "today" in the app is computed in this zone (SPEC rule 2).
-  APP_TIMEZONE: z
-    .string()
-    .refine((tz) => Intl.supportedValuesOf("timeZone").includes(tz), {
-      message: "APP_TIMEZONE must be an IANA zone name, e.g. Africa/Johannesburg",
-    }),
+  APP_TIMEZONE: z.string().refine(isValidTimeZone, {
+    message: "APP_TIMEZONE must be an IANA zone name, e.g. Africa/Johannesburg",
+  }),
 });
 
 const parsed = schema.safeParse(process.env);
