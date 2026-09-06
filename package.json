@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "eslint",
     "tsc": "tsc --noEmit",
-    "check": "eslint . && tsc --noEmit",
+    "check": "next typegen && eslint . && tsc --noEmit",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
     "db:studio": "prisma studio"
