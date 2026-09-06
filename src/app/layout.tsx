@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { ThemeProvider } from "@/components/ThemeProvider";
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -17,7 +19,6 @@ export const metadata: Metadata = {
   description: "One entry a day, in your own words.",
 };
 
-// ThemeProvider + Toaster arrive with the shadcn seam.
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
@@ -26,7 +27,17 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       // next-themes sets the theme class on <html> before hydration
       suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
