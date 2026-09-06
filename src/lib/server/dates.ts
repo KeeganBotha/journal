@@ -51,3 +51,8 @@ export function oneYearBefore(iso: IsoDate): IsoDate | null {
 export function formatLongDate(iso: IsoDate): string {
   return format(new Date(`${iso}T00:00:00`), "EEEE, d MMMM yyyy");
 }
+
+/** Presentation only: "Sat, 6 Sep 2026" for list rows. */
+export function formatShortDate(iso: IsoDate): string {
+  return format(new Date(`${iso}T00:00:00`), "EEE, d MMM yyyy");
+}
