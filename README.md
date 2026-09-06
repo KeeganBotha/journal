@@ -56,6 +56,18 @@ importable from providers.
 The full conventions (architecture, security, UI) and the app spec live in
 project docs kept outside the repo.
 
+## Reminders (web push)
+
+Settings → "Remind me at night" subscribes the current browser; the nightly
+cron (`vercel.json`, 19:00 UTC = 21:00 SAST) pushes to every subscription
+whose owner has no entry for today in `APP_TIMEZONE`. Push needs HTTPS or
+`localhost`; on iPhone it only works from the installed Home Screen app. Test
+the cron locally with:
+
+```
+curl -H "Authorization: Bearer $CRON_SECRET" http://localhost:3000/api/cron/reminders
+```
+
 ## Deployment
 
 Pushing `main` deploys via Vercel's Git integration: the build regenerates the

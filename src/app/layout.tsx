@@ -18,6 +18,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Journal",
   description: "One entry a day, in your own words.",
+  // iOS runs web push only from an installed app (SPEC); these make "Add to
+  // Home Screen" produce a real standalone app with our name and icon.
+  appleWebApp: { capable: true, title: "Journal", statusBarStyle: "default" },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
