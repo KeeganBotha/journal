@@ -6,3 +6,115 @@ generator client {
 datasource db {
   provider = "postgresql"
 }
+
+// ——— Better Auth models (shape required by better-auth's prisma adapter) ———
+
+model User {
+  id                String             @id
+  name              String
+  email             String
+  emailVerified     Boolean
+  image             String?
+  createdAt         DateTime
+  updatedAt         DateTime
+  sessions          Session[]
+  accounts          Account[]
+  entries           JournalEntry[]
+  pushSubscriptions PushSubscription[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime
+  updatedAt DateTime
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  issuer                String
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime
+  updatedAt             DateTime
+
+  @@unique([issuer, accountId])
+  @@index([userId])
+  @@map("account")
+}
+
+// ——— App models (SPEC-journal.md) ———
+
+enum Mood {
+  GREAT
+  GOOD
+  OKAY
+  LOW
+  ROUGH
+}
+
+model JournalEntry {
+  id          String   @id @default(uuid())
+  // Calendar day in APP_TIMEZONE, stored date-only; one per day per user.
+  date        DateTime @db.Date
+  // Tiptap document JSON — the source of truth for the entry body.
+  content     Json
+  // Plain text derived from `content` on EVERY write (service layer);
+  // powers search and list excerpts. The JSON is never string-searched.
+  contentText String   @default("")
+  mood        Mood?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, date])
+  @@index([ownerId, date(sort: Desc)])
+  @@map("journal_entry")
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("push_subscription")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime
+  updatedAt  DateTime
+
+  @@index([identifier])
+  @@map("verification")
+}

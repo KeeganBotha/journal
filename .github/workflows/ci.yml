@@ -17,6 +17,11 @@ jobs:
       BETTER_AUTH_URL: http://localhost:3000
       GOOGLE_CLIENT_ID: ci
       GOOGLE_CLIENT_SECRET: ci
+      VAPID_PUBLIC_KEY: ci
+      VAPID_PRIVATE_KEY: ci
+      VAPID_SUBJECT: mailto:ci@example.com
+      CRON_SECRET: ci-only-cron-secret-value
+      APP_TIMEZONE: UTC
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
