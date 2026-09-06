@@ -11,6 +11,7 @@ export default defineConfig({
   datasource: {
     // Migrations need a direct (non-pooled) connection; the app itself
     // runs on DATABASE_URL, which in production is the pooled endpoint.
-    url: process.env["DIRECT_DATABASE_URL"] ?? process.env["DATABASE_URL"],
+    // `||` not `??`: an empty DIRECT_DATABASE_URL= line (as in .env.example) must fall back.
+    url: process.env["DIRECT_DATABASE_URL"] || process.env["DATABASE_URL"],
   },
 });
