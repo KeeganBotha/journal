@@ -42,6 +42,7 @@ Better Auth (Google OAuth) · Zod · react-hook-form · Tiptap · web-push
 | `npm run build` | prisma generate → migrate deploy → next build (what Vercel runs) |
 | `npm run db:migrate` | create/apply migrations in development |
 | `npm run db:studio` | browse the database |
+| `node scripts/generate-icons.mjs` | re-render the app icon (SVG lives in the script) to `public/icons`, `src/app/apple-icon.png`, `src/app/icon.png` |
 
 ## Structure
 
