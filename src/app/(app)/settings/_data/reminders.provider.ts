@@ -24,7 +24,12 @@ export async function upsertSubscription(
   await db.pushSubscription.upsert({
     where: { endpoint: data.endpoint },
     create: { ...data, userId: scope.userId },
-    update: { p256dh: data.p256dh, auth: data.auth, userId: scope.userId },
+    update: {
+      p256dh: data.p256dh,
+      auth: data.auth,
+      userId: scope.userId,
+      lastSeenAt: new Date(),
+    },
     select: { id: true },
   });
 }
@@ -37,6 +42,18 @@ export async function deleteSubscription(
 ): Promise<boolean> {
   const { count } = await db.pushSubscription.deleteMany({
     where: { endpoint, userId: scope.userId },
+  });
+  return count > 0;
+}
+
+/** Keep-alive: the browser still holds this subscription. False when it isn't this user's. */
+export async function touchSubscription(
+  scope: SessionScope,
+  endpoint: string,
+): Promise<boolean> {
+  const { count } = await db.pushSubscription.updateMany({
+    where: { endpoint, userId: scope.userId },
+    data: { lastSeenAt: new Date() },
   });
   return count > 0;
 }

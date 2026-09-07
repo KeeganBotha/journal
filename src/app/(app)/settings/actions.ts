@@ -53,3 +53,24 @@ export async function unsubscribeFromReminders(
   revalidatePath("/settings");
   return { ok: true, data: null };
 }
+
+/**
+ * Keep-alive from KeepRemindersAlive (once a day per browser). Returns
+ * ok:false with data when the server no longer knows this subscription —
+ * a signal, not an error, so the caller can drop the browser-side one.
+ */
+export async function touchReminderSubscription(
+  input: unknown,
+): Promise<ActionResult<{ known: boolean }>> {
+  const parsed = unsubscribeSchema.safeParse(input);
+  if (!parsed.success) return { ok: false, message: BAD_SUBSCRIPTION };
+
+  try {
+    const known = await remindersService.keepRemindersAlive(parsed.data.endpoint);
+    return { ok: true, data: { known } };
+  } catch (error) {
+    unstable_rethrow(error);
+    console.error("touchReminderSubscription failed:", error);
+    return { ok: false, message: GENERIC_ERROR };
+  }
+}

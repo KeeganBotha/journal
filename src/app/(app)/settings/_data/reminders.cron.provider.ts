@@ -34,3 +34,11 @@ export async function deleteSubscriptionsByEndpoint(
   });
   return count;
 }
+
+/** Removes subscriptions no browser has confirmed since `cutoff` (see STALE_AFTER_DAYS). */
+export async function deleteSubscriptionsNotSeenSince(cutoff: Date): Promise<number> {
+  const { count } = await db.pushSubscription.deleteMany({
+    where: { lastSeenAt: { lt: cutoff } },
+  });
+  return count;
+}

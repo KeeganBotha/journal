@@ -1,6 +1,7 @@
 import { verifySession, getSessionUser } from "@/lib/server/session";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { AppNav } from "./_components/AppNav";
+import { KeepRemindersAlive } from "./_components/KeepRemindersAlive";
 
 // The authenticated app shell: header + top nav. Journal has no containers to
 // list (one entry per day, nothing to organise), so unlike Todos there is no
@@ -28,6 +29,7 @@ export default async function AppLayout({
         </div>
       </header>
       <main className="flex min-w-0 flex-1 flex-col">{children}</main>
+      <KeepRemindersAlive />
     </div>
   );
 }

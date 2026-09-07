@@ -28,3 +28,9 @@ export async function disableReminders(endpoint: string): Promise<boolean> {
   const scope = await verifySession();
   return remindersProvider.deleteSubscription(scope, endpoint);
 }
+
+/** Daily keep-alive from an open app; false when the row is gone (browser should resubscribe). */
+export async function keepRemindersAlive(endpoint: string): Promise<boolean> {
+  const scope = await verifySession();
+  return remindersProvider.touchSubscription(scope, endpoint);
+}

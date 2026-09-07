@@ -62,7 +62,13 @@ project docs kept outside the repo.
 Settings → "Remind me at night" subscribes the current browser; the nightly
 cron (`vercel.json`, 19:00 UTC = 21:00 SAST) pushes to every subscription
 whose owner has no entry for today in `APP_TIMEZONE`. Push needs HTTPS or
-`localhost`; on iPhone it only works from the installed Home Screen app. Test
+`localhost`; on iPhone it only works from the installed Home Screen app.
+
+Subscriptions are pruned two ways: the cron deletes any the push service
+reports gone (404/410), and any not seen for `STALE_AFTER_DAYS` (60). An open
+app touches its subscription once a day (`KeepRemindersAlive`), so only
+devices that have vanished expire. Turning the toggle on always subscribes
+fresh — iOS keeps a dead registration across a Home Screen reinstall. Test
 the cron locally with:
 
 ```

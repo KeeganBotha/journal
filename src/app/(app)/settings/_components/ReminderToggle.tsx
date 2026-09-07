@@ -47,12 +47,20 @@ export function ReminderToggle({
             setSupport(permission === "denied" ? "denied" : "ready");
             return;
           }
-          const subscription =
-            (await registration.pushManager.getSubscription()) ??
-            (await registration.pushManager.subscribe({
-              userVisibleOnly: true,
-              applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
-            }));
+          // Always subscribe fresh. iOS carries a registration across a Home
+          // Screen remove + re-add that Apple still accepts but the device no
+          // longer delivers (2026-09-07), so reusing it would show "on" and
+          // send nothing. Drop it on both sides first.
+          const stale = await registration.pushManager.getSubscription();
+          if (stale) {
+            const endpoint = stale.endpoint;
+            await stale.unsubscribe();
+            await unsubscribeFromReminders({ endpoint }); // a miss is fine
+          }
+          const subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(vapidPublicKey),
+          });
           const result = await subscribeToReminders(subscription.toJSON());
           if (!result.ok) {
             await subscription.unsubscribe();

@@ -100,6 +100,10 @@ model PushSubscription {
   p256dh    String
   auth      String
   createdAt DateTime @default(now())
+  /// Touched whenever the owning browser proves it still holds this subscription
+  /// (subscribe, or the daily keep-alive on app open). The cron drops rows not
+  /// seen for STALE_AFTER_DAYS so devices that vanished without a 410 cannot pile up.
+  lastSeenAt DateTime @default(now())
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 

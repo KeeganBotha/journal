@@ -11,8 +11,18 @@ export type ReminderRun = {
   date: string;
   sent: number;
   failed: number;
+  /** Push service said 404/410 tonight. */
   removed: number;
+  /** Not seen by any browser for STALE_AFTER_DAYS. */
+  expired: number;
 };
+
+// A browser that has reminders on touches its row every time the app opens
+// (KeepRemindersAlive). Apple in particular keeps accepting pushes for a
+// registration the device already dropped (seen after a Home Screen
+// reinstall, 2026-09-07), so 410-pruning alone lets ghosts accumulate.
+// 60 days: anyone who has not opened Journal in two months has left.
+export const STALE_AFTER_DAYS = 60;
 
 const REMINDER = {
   title: "Journal",
@@ -27,6 +37,8 @@ const REMINDER = {
  */
 export async function sendDailyReminders(): Promise<ReminderRun> {
   const date = todayInAppTz();
+  const cutoff = new Date(Date.now() - STALE_AFTER_DAYS * 24 * 60 * 60 * 1000);
+  const expired = await cronProvider.deleteSubscriptionsNotSeenSince(cutoff);
   const targets = await cronProvider.findSubscriptionsWithoutEntryOn(date);
 
   const outcomes = await Promise.all(
@@ -44,5 +56,6 @@ export async function sendDailyReminders(): Promise<ReminderRun> {
     sent: outcomes.filter((o) => o.outcome === "sent").length,
     failed: outcomes.filter((o) => o.outcome === "failed").length,
     removed,
+    expired,
   };
 }
